@@ -1,17 +1,10 @@
 import React from 'react';
-import { render } from 'react-dom';
 import { StyleSheet, Text, View } from 'react-native';
-import { SearchBar } from 'react-native-elements';
 
-
-export function HomePage() {
+export function AddReviewPage() {
     return (
       <View style={styles.container}>
-        {/* <SearchBar
-            placeholder="Type Here..."
-            onChangeText={this.updateSearch}
-            value=""
-        /> */}
+        <Text>Add review Page</Text>
       </View>
     );
   }
@@ -24,5 +17,3 @@ export function HomePage() {
       justifyContent: 'center',
     },
   });
-
-  

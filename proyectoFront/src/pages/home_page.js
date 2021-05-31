@@ -2,16 +2,12 @@ import React from 'react';
 import { render } from 'react-dom';
 import { StyleSheet, Text, View } from 'react-native';
 import { SearchBar } from 'react-native-elements';
-
+import { HelloManager } from '../manager/hello_manager';
 
 export function HomePage() {
     return (
       <View style={styles.container}>
-        {/* <SearchBar
-            placeholder="Type Here..."
-            onChangeText={this.updateSearch}
-            value=""
-        /> */}
+        
       </View>
     );
   }

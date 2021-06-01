@@ -1,5 +1,5 @@
 export default class global{
 
-    static serverURL = 'http://localhost:2000'; 
+    static serverURL = 'http://192.168.0.245:2000'; 
 
 }

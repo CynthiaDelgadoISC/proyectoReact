@@ -5,6 +5,8 @@ import { SearchBar } from 'react-native-elements';
 import { HelloManager } from '../manager/hello_manager';
 
 export function HomePage() {
+
+    new HelloManager().getHelloWorld();
     return (
       <View style={styles.container}>
         

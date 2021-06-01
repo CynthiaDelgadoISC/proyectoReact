@@ -22,6 +22,10 @@ export default class UserDto extends ModelDto {
         
     }
 
+    static getList    = (lista) => new Serializer(new UserDto()).decodeList(lista);
+
+    static encodeList = (lista) => new Serializer(new UserDto()).encodeList(lista);
+
     decode(json){ 
         this.idUsuario  = json['_idUsuario'] 
         this.nombre     = json['_nombre']

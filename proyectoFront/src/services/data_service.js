@@ -28,7 +28,7 @@ export default class DataService{
     }
 
     async get(method){
-        console.log(method);
+        console.log(`${Global.serverURL}${method}`);
         const response = await (fetch(`${Global.serverURL}${method}`, {
             method: 'GET',
             headers: this.headers,

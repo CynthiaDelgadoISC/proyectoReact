@@ -22,10 +22,14 @@ export default class ReviewDto extends ModelDto {
         this.calificacion = calificacion
     }
 
+    static getList    = (lista) => new Serializer(new ReviewDto()).decodeList(lista);
+
+    static encodeList = (lista) => new Serializer(new ReviewDto()).encodeList(lista);
+
     decode(json){ 
         this.idReseña =     json['_idReseña'];
-        this.usuario =      usuario.decode(json['_usuario']);
-        this.contenido =    contenido.decode(json['_contenido']);
+        this.usuario =      this.usuario.decode(json['_usuario']);
+        this.contenido =    this.contenido.decode(json['_contenido']);
         this.descripcion =  json['_descripcion'];
         this.fecha =        json['_fecha'];
         this.calificacion = json['_calificacion'];

@@ -15,6 +15,10 @@ export default class ContentDto extends ModelDto {
         this.idContenido = idContenido;
     }
 
+    static getList    = (lista) => new Serializer(new ContentDto()).decodeList(lista);
+
+    static encodeList = (lista) => new Serializer(new ContentDto()).encodeList(lista);
+
     decode(json){ 
         this.titulo =      json['_titulo'];
         this.url =         json['url'];

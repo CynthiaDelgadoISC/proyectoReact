@@ -14,7 +14,7 @@ export default class DataService{
         };
     }
 
-    async post(method, model){
+    async post(method, model) {
         const response = await fetch(`${Global.serverURL}${method}`, {
             method: 'POST',
             headers: this.headers,

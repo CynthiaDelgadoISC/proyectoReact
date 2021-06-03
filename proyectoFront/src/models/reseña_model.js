@@ -1,7 +1,7 @@
 import {ModelDto} from './data_model.js';
 import ContentDto from './content_model';
 import UsuarioDto from './usuario_model';
-
+import Serializer from './serializer';
 
 export default class ReviewDto extends ModelDto {
     
@@ -27,21 +27,20 @@ export default class ReviewDto extends ModelDto {
     static encodeList = (lista) => new Serializer(new ReviewDto()).encodeList(lista);
 
     decode(json){ 
-        this.idReseña =     json['_idReseña'];
-        this.usuario =      this.usuario.decode(json['_usuario']);
-        this.contenido =    this.contenido.decode(json['_contenido']);
+        this.idReseña =     json['_id'];
+        this.usuario =      Object.create(this.usuario).decode(json['_usuario']);
+        this.contenido =    Object.create(this.contenido).decode(json['_contenido']);
         this.descripcion =  json['_descripcion'];
         this.fecha =        json['_fecha'];
         this.calificacion = json['_calificacion'];
         return this;
-
     }
 
     encode(){
         json = {
-            '_idReseña':     this.idReseña,
-            '_usuario':      this.usuario.encode(),
-            '_contenido':    this.contenido.encode(),
+            '_id':     this.idReseña,
+            '_usuario':      Object.create(this.usuario).encode(),
+            '_contenido':    Object.create(this.contenido).encode(),
             '_descripcion':  this.descripcion,
             '_fecha':        this.fecha,
             '_calificacion': this.calificacion,

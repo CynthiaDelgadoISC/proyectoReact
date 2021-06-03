@@ -25,9 +25,9 @@ export default class ComentarioDto extends ModelDto {
     static encodeList = (lista) => new Serializer(new ComentarioDto()).encodeList(lista);
     
     decode(json){ 
-        this.idComentario = json['_idComentario'];
-        this.usuario =      this.usuario.decode(json['_usuario']);
-        this.reseña =       this.reseña.decode(json['_reseña']);
+        this.idComentario = json['_id'];
+        this.usuario =      Object.create(this.usuario).decode(json['_usuario']);
+        this.reseña =       Object.create(this.reseña).decode(json['_reseña']);
         this.comentario =   json['_comentario'];
         this.fecha =        json['_fecha'];
 
@@ -36,9 +36,9 @@ export default class ComentarioDto extends ModelDto {
 
     encode(){
         json = {
-            '_idComentario': this.idComentario,
-            '_usuario':      this.usuario.encode(),
-            '_reseña':       this.reseña.encode(),
+            '_id': this.idComentario,
+            '_usuario':      Object.create(this.usuario).encode(),
+            '_reseña':       Object.create(this.reseña).encode(),
             '_comentario':   this.comentario,
             '_fecha':        this.fecha,
         };

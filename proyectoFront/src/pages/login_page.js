@@ -5,8 +5,8 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 export class LoginPage extends Component {
     constructor(props){
         super(props);
-        
     }
+    
     render(){
         return (
         <View style={styles.container}>

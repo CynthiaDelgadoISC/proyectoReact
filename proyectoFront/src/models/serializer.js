@@ -16,7 +16,8 @@ export default class Serializer{
             return models;
         
         for(var json in lista){
-            models.push(this.modelSeed.decode(lista[json]));
+            let temp = Object.create(this.modelSeed);
+            models.push(temp.decode(lista[json]));
         }
 
         return models;

@@ -1,4 +1,5 @@
 import {ModelDto} from './data_model.js';
+import Serializer from './serializer';
 
 export default class ContentDto extends ModelDto {
     
@@ -21,9 +22,9 @@ export default class ContentDto extends ModelDto {
 
     decode(json){ 
         this.titulo =      json['_titulo'];
-        this.url =         json['url'];
+        this.url =         json['_url'];
         this.categoria =   json['_categoria'];
-        this.idContenido = json['_idContenido'];
+        this.idContenido = json['_id'];
         return this;
     }
 
@@ -32,7 +33,7 @@ export default class ContentDto extends ModelDto {
             '_titulo':      this.titulo,
             '_url':         this.url,
             '_categoria':   this.categoria,  
-            '_idContenido': this.idContenido,
+            '_id': this.idContenido,
         };
 
         return JSON.stringify(json);

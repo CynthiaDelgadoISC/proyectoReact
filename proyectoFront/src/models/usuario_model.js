@@ -1,4 +1,5 @@
 import {ModelDto} from './data_model.js';
+import Serializer from './serializer';
 
 export default class UserDto extends ModelDto {
     
@@ -26,8 +27,8 @@ export default class UserDto extends ModelDto {
 
     static encodeList = (lista) => new Serializer(new UserDto()).encodeList(lista);
 
-    decode(json){ 
-        this.idUsuario  = json['_idUsuario'] 
+    decode(json){
+        this.idUsuario  = json['_id']
         this.nombre     = json['_nombre']
         this.apellido   = json['_apellido']
         this.fecha      = json['_fecha']
@@ -39,7 +40,7 @@ export default class UserDto extends ModelDto {
 
     encode(){
         json = {
-            '_idUsuario'  : this.idUsuario,
+            '_id'  : this.idUsuario,
             '_nombre'     : this.nombre,
             '_apellido'   : this.apellido,
             '_fecha'      : this.fecha,

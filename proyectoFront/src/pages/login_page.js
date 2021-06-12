@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import Icon from 'react-native-vector-icons/AntDesign'
-import { StyleSheet, Text, View, Pressable, Button, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Button, TouchableOpacity, ToastAndroid } from 'react-native';
 import { Input } from 'react-native-elements';
-
+import Global from '../configuration/global';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import UserDto from '../models/usuario_model';
 
 const loginValidationSchema = yup.object().shape({
   email: yup
@@ -28,7 +29,35 @@ export class LoginPage extends Component {
           <Formik
             validationSchema={loginValidationSchema}
             initialValues={{ email: '', password: '' }}
-            onSubmit={values => console.log(values)}
+            onSubmit={
+              async (values) => {
+                fetch(`${Global.serverURL}/api/login`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-type': 'application/json',
+                    'Accept': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    '_correo': values.email,
+                    '_contrasena': values.password
+                  })
+                })
+                .then((res)=> res.json())
+                .then((data) => {
+                  if(data != null){
+                    Global.user = new UserDto().decode(data)
+                    console.log(Global.user.encode());
+                    this.props.navigation.navigate('Switch')
+                  }else{
+                    ToastAndroid.showWithGravity(
+                      "Error",
+                      ToastAndroid.SHORT,
+                      ToastAndroid.CENTER
+                    );
+                  }
+                });
+              }
+            }
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, isValid, touched }) => (
               <>
@@ -95,11 +124,6 @@ export class LoginPage extends Component {
             
           </Formik>
         </View>
-
-            <Pressable
-            onPress={()=>this.props.navigation.navigate('Switch')}>
-                <Text>Switch</Text>
-            </Pressable>
         </View>
         );
     } 

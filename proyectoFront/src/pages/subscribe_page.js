@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import Icon from 'react-native-vector-icons/AntDesign'
 import { StyleSheet, Text, View, StatusBar, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
 import { Input } from 'react-native-elements';
-import ImagePicker from 'react-native-image-picker'
+import ImagePicker from 'react-native-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -42,7 +43,9 @@ export class SubscribePage extends Component {
             <Formik
               validationSchema={loginValidationSchema}
               initialValues={{ email: '', password: '', name: '', lastname: '', }}
-              onSubmit={values => console.log(values)}
+              onSubmit={ values => {
+                console.log(values);
+              }}
             >
               {({ handleChange, handleBlur, handleSubmit, values, errors, isValid, touched }) => (
                 <>
@@ -177,7 +180,7 @@ export class SubscribePage extends Component {
                       <TouchableOpacity onPress={handleSubmit} >
                         <Text style={styles.textButton}>
                           Crear Cuenta
-                    </Text>
+                        </Text>
                       </TouchableOpacity>
 
                     </LinearGradient>

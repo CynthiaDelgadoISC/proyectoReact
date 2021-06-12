@@ -49,7 +49,7 @@ const DATA = [
   },
 ];
 
-export function AddReviewPage({route, navigation}) {
+export function UpdateReviewPage({route, navigation}) {
   useEffect(() => {
     console.log('Entraaaaaaaaaaa', route.params)
     // itemId=route.params.id;

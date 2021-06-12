@@ -31,7 +31,7 @@ export default class UserDto extends ModelDto {
         this.idUsuario  = json['_id']
         this.nombre     = json['_nombre']
         this.apellido   = json['_apellido']
-        this.fecha      = json['_fecha']
+        this.fecha      = json['_fechaNacimiento']
         this.correo     = json['_correo']
         this.contraseña = json['_contraseña']
         this.url        = json['_url']
@@ -39,11 +39,11 @@ export default class UserDto extends ModelDto {
     }
 
     encode(){
-        json = {
+        let json = {
             '_id'  : this.idUsuario,
             '_nombre'     : this.nombre,
             '_apellido'   : this.apellido,
-            '_fecha'      : this.fecha,
+            '_fechaNacimiento'      : this.fecha,
             '_correo'     : this.correo,
             '_contraseña' : this.contraseña,
             '_url'        : this.url,

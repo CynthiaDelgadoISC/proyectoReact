@@ -62,6 +62,7 @@ export function AddReviewPage({route, navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [titleContenido, setTitleContenido] = useState('');
+  const [rating, setRating] = useState(0);
   const [search , setSearch] = useState('');
   const [filtData , setData] = useState(DATA);
 
@@ -100,7 +101,16 @@ export function AddReviewPage({route, navigation}) {
         <Formik
             validationSchema={addValidationSchema}
             initialValues={{ description: ''}}
-            onSubmit={values => console.log(values)}
+            onSubmit={async values => {
+              const response = await saveReview({
+                description: values.description,
+                rating: rating,
+                titleContenido: titleContenido
+              });
+              if(response){
+                setAlertVisible(true);
+              }
+            }}
         >
            {({ handleChange, handleBlur, handleSubmit, values, errors, isValid, touched }) => (
               <>
@@ -120,6 +130,11 @@ export function AddReviewPage({route, navigation}) {
           multiline = {true}
           numberOfLines = {5}
           label='Descipción'
+          name="firstName"
+                      placeholder="Descipción"
+                      onChangeText={handleChange('description')}
+                      onBlur={handleBlur('description')}
+                      value={values.description}
           />
           <AirbnbRating
             count={5}
@@ -127,13 +142,14 @@ export function AddReviewPage({route, navigation}) {
             defaultRating={1}
             size={30}
             reviewSize={15}
+            onFinishRating={(number) => {setRating(number)}}
           />
           <View style={{flex:1, flexDirection:'row', justifyContent:'center'}}>
             <Button containerStyle={[{ width: '70%', marginVertical:40 }]}
                   title="Guardar"
                   type="outline"
                   theme={{colors: {primary: '#32cd32'}}}
-                  onPress={()=> setAlertVisible(true) }
+                  onPress={handleSubmit}
               />
           </View>
           </>
@@ -196,6 +212,16 @@ export function AddReviewPage({route, navigation}) {
         </Modal>
       </SafeAreaProvider>
     );
+  }
+
+  const saveReview = async (values) =>  {
+    return new Promise(resolve => {
+      console.log("guardando rese;a", values);
+
+      setTimeout(() => {
+        resolve(true);
+      }, 5000);
+    })
   }
   
   const styles = StyleSheet.create({

@@ -78,13 +78,6 @@ export class SubscribePage extends Component {
                         />
                       </TouchableOpacity>
                     </LinearGradient>
-                    {values.photo &&
-                      <Text>{`...${values.photo.fileName.substr(values.photo.fileName.length - 10)}`}</Text>
-                    }
-
-                    {(errors.photo && touched.photo) &&
-                      <Text style={{ color: 'red' }}>{errors.photo}</Text>
-                    }
                   </View>
                   <View style={styles.loginContainer}>
 

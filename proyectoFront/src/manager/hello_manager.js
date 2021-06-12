@@ -1,5 +1,6 @@
 import HelloService from '../services/hello_service'
-
+import UserDto from '../models/usuario_model';
+import Global from '../configuration/global';
 export class HelloManager{
 
     async getHelloWorld(){
@@ -10,6 +11,12 @@ export class HelloManager{
             console.log(dto.reseñas[0]);
             console.log(dto.reseñas[1]);
         }
+    }
+
+    async register(dto){
+        let newDto = await (new HelloService()).register(dto);
+        console.log(newDto);
+        Global.user = newDto;
     }
 
 }

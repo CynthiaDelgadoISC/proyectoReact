@@ -23,10 +23,10 @@ const screenOptions = (route, color) => {
         iconName = 'book';
         break;
       case 'AddReview':
-        iconName = 'book';
+        iconName = 'addfile';
         break;
       case 'Report':
-        iconName = 'search1';
+        iconName = 'linechart';
         break;
     }
   
@@ -40,12 +40,13 @@ const TabNavigator = () => {
           tabBarIcon: ({color}) => screenOptions(route, color),
         })}
         tabBarOptions={{
+            showLabel: false,
             activeTintColor: '#21eab3',
             inactiveTintColor: 'gray',
         }}>
         <Tab.Screen name="MyReview" component={MyReviewPage}/>
         <Tab.Screen name="Home" component={ HomePage } />
-        <Tab.Screen name="AddReview" component={ AddReviewPage } />
+        <Tab.Screen name="AddReview" component={ AddReviewPage } initialParams={{ viewId: '' }}/>
         <Tab.Screen name="Report" component={ ReportPage } />
 
       </Tab.Navigator>

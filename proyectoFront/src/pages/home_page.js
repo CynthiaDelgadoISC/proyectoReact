@@ -1,113 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { render } from 'react-dom';
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Modal, Pressable, Image,ScrollView } from 'react-native';
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SearchBar, Header, withTheme } from 'react-native-elements';
-
+import Global from '../configuration/global';
 
 export function HomePage(){
 
-  const DATA = [
-    {
-      id: "r1",
-      title: "Cazadores de sombras",
-      cal:1,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r2",
-      title: "Second Item",
-      cal:2,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r3",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r4",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r5",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r6",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r7",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r8",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r9",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-    {
-      id: "r10",
-      title: "Third Item",
-      cal:3,
-      fecha:'20/02/21',
-      descripcion:'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
-    },
-  ];
-  
   const [search , setSearch] = useState('');
-
   const [filtData , setData] = useState(DATA);
+  const [DATA , setRegData] = useState(DATA);
   
-
-  const updateSearch = (search) => {
-    setSearch(search);
-    let filteredData = DATA.filter( (item) => {
-      return item.title.toLowerCase().match(search);
+  useEffect( () => {
+    fetch(`${Global.serverURL}/api/resenas`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      },
+    })
+    .then((res)=> res.json())
+    .then((data) => {
+      setData(data);
+      setRegData(data);
     });
-    setData(filteredData);
-
-  };
+  },[])
 
   
 
     
+  const updateSearch = (search) => {
+    setSearch(search);
+    let filteredData = DATA.filter( (item) => {
+      return item._contenido[0]._titulo.toLowerCase().match(`^.*(${search.toLowerCase()}).*\$`);
+    });
+    setData(filteredData);
+
+  };
+   
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedReview, setSelectedReview] = useState({});
 
-
-
-
-
     const styles = StyleSheet.create({
       inputStyle:{backgroundColor: 'white'},
-      searchContainerStyle: {backgroundColor: 'white', borderWidth: 1, borderRadius: 5},
+      searchContainerStyle: {backgroundColor: 'white', borderWidth: 1, borderRadius: 5,padding:0},
       inputContainerStyle : {backgroundColor: 'white'},
       flatList:{
         width:'100%',
@@ -193,12 +130,12 @@ export function HomePage(){
           source={{ uri: 'https://reactnative.dev/img/tiny_logo.png',}}
         />
         <View style={{flex:4}}>
-          <Text style={styles.date}>{item.fecha}</Text>
-          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.date}>{item._fecha}</Text>
+          <Text style={styles.title}>{item._contenido != null?item._contenido[0]._titulo: ""}</Text>
           <Rating
               ratingCount={5}
               readonly={true}
-              startingValue={item.cal}
+              startingValue={item._calificacion}
               imageSize={20}
               ratingColor='#3498db'
               ratingBackgroundColor='#c8c7c8'
@@ -211,7 +148,7 @@ export function HomePage(){
 
       
       <SafeAreaProvider>
-      <Header centerComponent={{ text: 'Principal', style: { color: '#fff' } }}/>
+      <Header centerComponent={{ text: 'PRINCIPAL', style: { color: '#fff' } }}/>
       <SearchBar style={styles.searchStyle}
         placeholder="Buscar"
         onChangeText={updateSearch}
@@ -225,7 +162,7 @@ export function HomePage(){
       <FlatList style={styles.flatList}
         data={filtData}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item._id}
       />
 
       {/* Modal Reseña */}
@@ -240,17 +177,17 @@ export function HomePage(){
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
           <ScrollView style={{marginVertical:10}} >
-            <Text style={{textAlign:'right', paddingVertical:10}}>{selectedReview.fecha} </Text>
+            <Text style={{textAlign:'right', paddingVertical:10}}>{selectedReview._fecha} </Text>
             <Image 
               style={styles.tinyLogoModal}
               source={{ uri: 'https://reactnative.dev/img/tiny_logo.png',}}
             />
-            <Text style={styles.titleModal}>{selectedReview.title}</Text>
-            <Text style={styles.modalText}>{selectedReview.descripcion}</Text>
+            <Text style={styles.titleModal}>{selectedReview._contenido != null?selectedReview._contenido[0]._titulo: ""}</Text>
+            <Text style={styles.modalText}>{selectedReview._descripcion}</Text>
             <Rating
             ratingCount={5}
             readonly={true}
-            startingValue={selectedReview.cal}
+            startingValue={selectedReview._calificacion}
             imageSize={30}
             ratingColor='#3498db'
             ratingBackgroundColor='#c8c7c8'

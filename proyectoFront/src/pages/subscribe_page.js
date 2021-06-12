@@ -191,7 +191,7 @@ export class SubscribePage extends Component {
                       <TouchableOpacity onPress={handleSubmit} >
                         <Text style={styles.textButton}>
                           Crear Cuenta
-                    </Text>
+                        </Text>
                       </TouchableOpacity>
 
                     </LinearGradient>

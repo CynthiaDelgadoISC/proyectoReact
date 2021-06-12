@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, Modal, Pressable, I
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Header } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/AntDesign';
+import {Alert} from 'react-native-alert-dialogues';
 
 const DATA = [
   {
@@ -77,7 +79,8 @@ const DATA = [
   },
 ];
 
-export function MyReviewPage() {
+export function MyReviewPage({navigation}) {
+  const [alertVisible, setAlertVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState({});
   const renderItem = ({ item }) => (
@@ -117,6 +120,18 @@ export function MyReviewPage() {
         renderItem={renderItem}
         keyExtractor={item => item.id}
       />
+       {/* Alert */}
+       <Alert
+          visible={alertVisible}
+          type= "success"
+          okPressed={() =>{
+            setAlertVisible(false)
+            setModalVisible(false)
+          }
+          }
+          title= "Reseña Eliminada!!!"
+          message=''
+        /> 
 
       {/* Modal Reseña */}
       <Modal
@@ -129,7 +144,15 @@ export function MyReviewPage() {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-          <ScrollView style={{marginVertical:10}} >
+          <View style={{flexDirection:'row', alignSelf:'flex-end'}}>
+              <Icon.Button name={'form'} color={'gray'} backgroundColor="transparent"  size={32} style={{paddingVertical:10, paddingHorizontal:5}} 
+                onPress={() => navigation.navigate('AddReview')}
+              />
+              <Icon.Button name={'delete'} color={'gray'} backgroundColor="transparent" size={32} style={{paddingVertical:10, paddingHorizontal:5}}
+                onPress={()=> setAlertVisible(true)} 
+              />
+            </View>   
+          <ScrollView style={{marginVertical:10}} > 
             <Text style={{textAlign:'right', paddingVertical:10}}>{selectedReview.fecha} </Text>
             <Image 
               style={styles.tinyLogoModal}
@@ -144,8 +167,9 @@ export function MyReviewPage() {
             imageSize={30}
             ratingColor='#3498db'
             ratingBackgroundColor='#c8c7c8'
-          />
+            />
           </ScrollView>
+
             <Pressable
               style={styles.buttonClose}
               onPress={() => setModalVisible(!modalVisible)}

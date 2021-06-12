@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/AntDesign'
-import { StyleSheet, Text, View, StatusBar, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
 import { Input } from 'react-native-elements';
-import ImagePicker from 'react-native-image-picker'
-
+import * as ImagePicker from 'expo-image-picker';
+import  {LinearGradient} from 'expo-linear-gradient'
 import { Formik } from 'formik';
 import * as yup from 'yup';
-const loginValidationSchema = yup.object().shape({
+
+import userImage from './../../assets/User_Icon.png'
+const userImageURI = Image.resolveAssetSource(userImage).uri
+
+
+
+const CreateValidationSchema = yup.object().shape({
   email: yup
     .string()
     .email("Ingresa un correo valido")
@@ -18,21 +24,28 @@ const loginValidationSchema = yup.object().shape({
     .required('La contraseña es requerida'),
   password2: yup.string()
     .oneOf([yup.ref('password'), null], 'Passwords must match'),
-  name: yup
+  firstName: yup
     .string()
     .required('El nombre es requerido'),
   lastName: yup
     .string()
     .required('El apellido es requerido'),
-    photo: yup
+  photo: yup
     .string()
-    .required('El apellido es requerido'),
 })
 
 export class SubscribePage extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      userImage: {
+        imageURI: userImageURI,
+        image: null
+      }
+
+    }
   }
+  
   render() {
     return (
       <SafeAreaView style={styles.containerSafe}>
@@ -40,9 +53,9 @@ export class SubscribePage extends Component {
 
           <View style={styles.container}>
             <Formik
-              validationSchema={loginValidationSchema}
-              initialValues={{ email: '', password: '', name: '', lastname: '', }}
-              onSubmit={values => console.log(values)}
+              validationSchema={CreateValidationSchema}
+              initialValues={{ email: '', password: '', password2: '', firstName: '', lastName: ''}}
+              onSubmit={async (values) => { const response = await this.fnCreateUser(values); console.log(response);console.log(this.state.userImage)}}
             >
               {({ handleChange, handleBlur, handleSubmit, values, errors, isValid, touched }) => (
                 <>
@@ -55,13 +68,14 @@ export class SubscribePage extends Component {
                       <TouchableOpacity
                         style={styles.buttonContainerImg}
                         onPress={() => {
-                          ImagePicker.showImagePicker(
-                            { title: 'Select Photo' }, (response) => {
-                              if (response.uri) setFieldValue('photo', response)
-                              setFieldTouched('photo', true)
-                            })
+                          this.pick();
+  
                         }}
                       >
+                        <Image
+                          style={styles.buttonImg}
+                          source={{uri: this.state.userImage.imageURI}}
+                        />
                       </TouchableOpacity>
                     </LinearGradient>
                     {values.photo &&
@@ -142,15 +156,15 @@ export class SubscribePage extends Component {
                           size={24}
                         />
                       }
-                      name="name"
+                      name="firstName"
                       placeholder="Nombre"
                       style={styles.textInput}
-                      onChangeText={handleChange('name')}
-                      onBlur={handleBlur('name')}
-                      value={values.email}
+                      onChangeText={handleChange('firstName')}
+                      onBlur={handleBlur('firstName')}
+                      value={values.firstName}
                     />
-                    {(errors.name && touched.name) &&
-                      <Text style={{ fontSize: 10, color: 'red' }}>{errors.name}</Text>
+                    {(errors.firstName && touched.firstName) &&
+                      <Text style={{ fontSize: 10, color: 'red' }}>{errors.firstName}</Text>
                     }
                     <Input
                       leftIcon={
@@ -160,15 +174,15 @@ export class SubscribePage extends Component {
                           size={24}
                         />
                       }
-                      name="lastname"
+                      name="lastName"
                       placeholder="Apellido"
                       style={styles.textInput}
-                      onChangeText={handleChange('lastname')}
-                      onBlur={handleBlur('lastname')}
-                      value={values.lastname}
+                      onChangeText={handleChange('lastName')}
+                      onBlur={handleBlur('lastName')}
+                      value={values.lastName}
                     />
-                    {(errors.lastname && touched.lastname) &&
-                      <Text style={{ fontSize: 10, color: 'red' }}>{errors.lastname}</Text>
+                    {(errors.lastName && touched.lastName) &&
+                      <Text style={{ fontSize: 10, color: 'red' }}>{errors.lastName}</Text>
                     }
                     <LinearGradient
                       colors={['#A3F4D8', '#70F0C4', '#0CCE8B', '#37F497']}
@@ -199,6 +213,41 @@ export class SubscribePage extends Component {
       </SafeAreaView>
     );
   }
+
+  fnCreateUser(values){
+    return new Promise(resolve => {
+      console.log(values);
+
+      setTimeout(() => {
+        resolve(true);
+      }, 2000);
+    })
+  }
+  async permisionFunction  (){
+    // here is how you can get the camera permission
+
+    const imagePermission = await ImagePicker.getMediaLibraryPermissionsAsync();
+    console.log(imagePermission.status);
+
+    setGalleryPermission(imagePermission.status === 'granted');
+
+    if (imagePermission.status !== 'granted') {
+      alert('Permission for media access needed.');
+    }
+  }
+  async pick(){
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      
+    });
+
+    console.log(result.uri);
+    if (!result.cancelled) {
+      // setImageUri(result.uri);
+      this.setState({userImage: {imageURI: result.uri, image: result}});
+    }
+  }
 }
 
 const styles = StyleSheet.create({
@@ -218,7 +267,13 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: "#ffffff",
     width: 130, height: 130,
-    elevation: 10,
+    elevation: 15,
+    borderColor: "transparent"
+  },
+  buttonImg: {
+    borderRadius: 100,
+    backgroundColor: "#ffffff",
+    width: 130, height: 130,
     borderColor: "transparent"
   },
   containerImgUser: {

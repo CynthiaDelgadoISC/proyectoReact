@@ -35,7 +35,8 @@
     "yup": "^0.32.9",
     "expo-print": "~10.1.0",
     "expo-file-system": "~11.0.2",
-    "expo-media-library": "~12.0.2"
+    "expo-media-library": "~12.0.2",
+    "expo-image-picker": "~10.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"

@@ -4,8 +4,11 @@ import { VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
 import io from "socket.io-client";
 import * as MediaLibrary from 'expo-media-library';
 import * as Print from 'expo-print';
+import Global from '../configuration/global';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 export class ReportPage extends React.Component{
+
 
   htmlContent = `
     <!DOCTYPE html>
@@ -38,12 +41,57 @@ export class ReportPage extends React.Component{
         { quarter: 2, earnings: 16500 },
         { quarter: 3, earnings: 14250 },
         { quarter: 4, earnings: 19000 }
-      ]
+      ],
+      items:[
+        {label: 'Apple', value: 'apple'},
+        {label: 'Banana', value: 'banana'}
+      ],
+      value: '',
+      open: false
    };
-
-   this.createAndSavePDF(this.htmlContent);
+   this.getContenidos();
+   this.setValue = this.setValue.bind(this);
+   //this.createAndSavePDF(this.htmlContent);
    
   }
+
+ getContenidos = () =>{
+  fetch(`${Global.serverURL}/api/resenas/contenidos/ByUsuario?id=${Global.user.idUsuario}`, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    },
+  })
+  .then((res)=> res.json())
+  .then((data) => {
+    let itemsAux = [];
+    for(let item in data){
+      itemsAux.push({label: data[item]._titulo, value: data[item]._id});
+    }
+    this.setState({items : itemsAux});
+  });
+}
+
+  setOpen = (open) => {
+    this.setState({
+      open
+    });
+  }
+
+  setValue = (callback) => {
+    this.setState(state => ({
+      value: callback(state.value)
+    }));
+  }
+
+  setItems = (callback) => {
+    this.setState(state => ({
+      items: callback(state.items)
+    }));
+  }
+
+
   createAndSavePDF = async (html) => {
     try {
       const { uri } = await Print.printToFileAsync({ html });
@@ -96,14 +144,27 @@ export class ReportPage extends React.Component{
       },
     });
 
+    const { open, value, items } = this.state;
     return (
+
       <View style={styles.container}>
+    <View style={styles.container}>
+      <DropDownPicker
+         open={open}
+         value={value}
+         items={items}
+         setOpen={this.setOpen}
+         setValue={this.setValue}
+         setItems={this.setItems}
+      />
+      </View>
         <VictoryChart 
           width={Dimensions.get('window').width}
           theme={VictoryTheme.material}
           animate={{duration: 500}}>
           <VictoryBar data={this.state.data} x="quarter" y="earnings" />
         </VictoryChart>
+      
       </View>
     );
     

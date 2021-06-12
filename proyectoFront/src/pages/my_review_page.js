@@ -20,7 +20,7 @@ function modalContent({navigation}) {
   let change = 0;
 
   useEffect( () => {
-    fetch(`${Global.serverURL}/api/resenas/ById?id=${Global.user.idUsuario}`, {
+    fetch(`${Global.serverURL}/api/resenas/ByIdUsuario?id=${Global.user.idUsuario}`, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',

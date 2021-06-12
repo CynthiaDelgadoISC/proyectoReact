@@ -119,6 +119,13 @@ export class LoginPage extends Component {
                 Crear Cuenta
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+            onPress={()=>this.props.navigation.navigate('Switch')}
+            style={styles.containerButtonAlready}>
+              <Text>
+                switch
+              </Text>
+            </TouchableOpacity>
               </>
             )}
             

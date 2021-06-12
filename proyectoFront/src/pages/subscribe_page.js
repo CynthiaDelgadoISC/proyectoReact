@@ -5,7 +5,6 @@ import { StyleSheet, Text, View, StatusBar, SafeAreaView, TouchableOpacity, Scro
 import { Input } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker'
 
-import { LinearGradient } from 'expo-linear-gradient';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 const loginValidationSchema = yup.object().shape({

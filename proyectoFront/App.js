@@ -13,7 +13,7 @@ export default function App() {
                 <Stack.Navigator initialRouteName='Login'>
                     <Stack.Screen name="Switch" options={{headerShown: false}} component={ SwitchPage } />
                     <Stack.Screen name="Login" options={{headerShown: false}} component={ LoginPage } />
-                    <Stack.Screen name="Subscribe" component={ SubscribePage } />
+                    {/* <Stack.Screen name="Subscribe" component={ SubscribePage } /> */}
                 </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions  } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ToastAndroid } from 'react-native';
 import { VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
 import io from "socket.io-client";
 import * as MediaLibrary from 'expo-media-library';
 import * as Print from 'expo-print';
+
 export class ReportPage extends React.Component{
 
   htmlContent = `
@@ -24,11 +25,10 @@ export class ReportPage extends React.Component{
         </style>
     </head>
     <body>
-        <h1>Hello, UppLabs!</h1>
+        <h1>Hola profe!</h1>
     </body>
     </html>
 `;
-
 
   constructor(props){
     super(props);
@@ -52,7 +52,20 @@ export class ReportPage extends React.Component{
       } else {
         const permission = await MediaLibrary.requestPermissionsAsync();
         if (permission.granted) {
-          await MediaLibrary.createAssetAsync(uri);
+          let asset = await MediaLibrary.createAssetAsync(uri);
+          if(asset != null){
+            ToastAndroid.showWithGravity(
+              "Reporte guardado",
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER
+            );
+          }else{
+            ToastAndroid.showWithGravity(
+              "Error",
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER
+            );
+          }
         }
       }
     } catch (error) {

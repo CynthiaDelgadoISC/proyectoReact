@@ -146,7 +146,10 @@ export function MyReviewPage({navigation}) {
           <View style={styles.modalView}>
           <View style={{flexDirection:'row', alignSelf:'flex-end'}}>
               <Icon.Button name={'form'} color={'gray'} backgroundColor="transparent"  size={32} style={{paddingVertical:10, paddingHorizontal:5}} 
-                onPress={() => navigation.navigate('AddReview')}
+                onPress={() => {
+                  setModalVisible(false)
+                  navigation.navigate('AddReview')
+                }}
               />
               <Icon.Button name={'delete'} color={'gray'} backgroundColor="transparent" size={32} style={{paddingVertical:10, paddingHorizontal:5}}
                 onPress={()=> setAlertVisible(true)} 

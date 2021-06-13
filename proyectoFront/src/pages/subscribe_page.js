@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/AntDesign'
-import { StyleSheet, Text, View, Image, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
-import { Input } from 'react-native-elements';
+import {ToastAndroid, StyleSheet, Text, View, Image, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import { Input,  } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 import  {LinearGradient} from 'expo-linear-gradient'
 import { Formik } from 'formik';
 import * as yup from 'yup';
-
+import UserDto from '../models/usuario_model';
+import { HelloManager } from '../manager/hello_manager';
+import Global from '../configuration/global';
 import userImage from './../../assets/User_Icon.png'
 const userImageURI = Image.resolveAssetSource(userImage).uri
 
@@ -208,12 +210,30 @@ export class SubscribePage extends Component {
   }
 
   fnCreateUser(values){
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
       console.log(values);
 
-      setTimeout(() => {
-        resolve(true);
-      }, 2000);
+      let dto = new UserDto(
+        '',
+        values.firstName,
+        values.lastName,
+        '',
+        values.email,
+        values.password,
+        ''
+      );
+
+      dto = await new HelloManager().register(dto);
+      if(dto != null){
+        {/* Alert */}
+        ToastAndroid.showWithGravity(
+          "Registrado con éxito",
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER
+        );
+        this.props.navigation.goBack();
+        resolve(true);     
+      }
     })
   }
   async permisionFunction  (){

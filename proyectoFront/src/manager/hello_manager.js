@@ -14,9 +14,8 @@ export class HelloManager{
     }
 
     async register(dto){
-        let newDto = await (new HelloService()).register(dto);
-        console.log(newDto);
-        Global.user = newDto;
+        let newDto = await (new HelloService()).subscribe(dto);
+        return newDto;
     }
 
 }

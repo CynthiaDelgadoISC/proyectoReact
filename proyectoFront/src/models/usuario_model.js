@@ -33,7 +33,7 @@ export default class UserDto extends ModelDto {
         this.apellido   = json['_apellido']
         this.fecha      = json['_fechaNacimiento']
         this.correo     = json['_correo']
-        this.contraseña = json['_contraseña']
+        this.contraseña = json['_contrasena']
         this.url        = json['_url']
         return this;
     }
@@ -45,7 +45,7 @@ export default class UserDto extends ModelDto {
             '_apellido'   : this.apellido,
             '_fechaNacimiento'      : this.fecha,
             '_correo'     : this.correo,
-            '_contraseña' : this.contraseña,
+            '_contrasena' : this.contraseña,
             '_url'        : this.url,
         };
 

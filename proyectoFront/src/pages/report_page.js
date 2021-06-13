@@ -6,6 +6,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Print from 'expo-print';
 import Global from '../configuration/global';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { Header } from 'react-native-elements';
 
 export class ReportPage extends React.Component{
 
@@ -37,10 +38,11 @@ export class ReportPage extends React.Component{
     super(props);
     this.state = {
       data : [
-        { quarter: 1, earnings: 13000 },
-        { quarter: 2, earnings: 16500 },
-        { quarter: 3, earnings: 14250 },
-        { quarter: 4, earnings: 19000 }
+        { quarter: 1, earnings: 0 },
+        { quarter: 2, earnings: 0 },
+        { quarter: 3, earnings: 0 },
+        { quarter: 4, earnings: 0 },
+        { quarter: 5, earnings: 0 }
       ],
       items:[
         {label: 'Apple', value: 'apple'},
@@ -53,6 +55,30 @@ export class ReportPage extends React.Component{
    this.setValue = this.setValue.bind(this);
    //this.createAndSavePDF(this.htmlContent);
    
+  }
+
+  getInitialData = () => {
+    console.log('items',this.state.items);
+    if(this.state.items.length > 0){
+      fetch(`${Global.serverURL}/api/contenidos/calificaciones?id=${this.state.items[0].value}`, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+        },
+      })
+      .then((res)=> res.json())
+      .then((data) => {
+        let dataGraphicAux = [
+          { quarter: 1, earnings: data['1star'] },
+          { quarter: 2, earnings: data['2star'] },
+          { quarter: 3, earnings: data['3star'] },
+          { quarter: 4, earnings: data['4star'] },
+          { quarter: 5, earnings: data['5star'] }
+        ];
+        this.setState({data: dataGraphicAux});
+      });
+    }
   }
 
  getContenidos = () =>{
@@ -70,6 +96,7 @@ export class ReportPage extends React.Component{
       itemsAux.push({label: data[item]._titulo, value: data[item]._id});
     }
     this.setState({items : itemsAux});
+    this.getInitialData();
   });
 }
 
@@ -140,7 +167,7 @@ export class ReportPage extends React.Component{
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
+        // justifyContent: 'center',
       },
     });
 
@@ -148,7 +175,7 @@ export class ReportPage extends React.Component{
     return (
 
       <View style={styles.container}>
-    <View style={styles.container}>
+        <Header centerComponent={{ text: 'REPORTE', style: { color: '#fff' } }}/>
       <DropDownPicker
          open={open}
          value={value}
@@ -156,8 +183,8 @@ export class ReportPage extends React.Component{
          setOpen={this.setOpen}
          setValue={this.setValue}
          setItems={this.setItems}
+         style={{marginVertical:15}}
       />
-      </View>
         <VictoryChart 
           width={Dimensions.get('window').width}
           theme={VictoryTheme.material}

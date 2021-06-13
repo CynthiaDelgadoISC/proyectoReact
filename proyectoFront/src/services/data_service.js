@@ -21,8 +21,8 @@ export default class DataService{
             body: model.encode()
         });
         const body = await response.json();
-        if(response.statusCode == 200)
-            return model.decode(response.body);
+        if(body != null)
+            return model.decode(body);
         else
             return null;
     }

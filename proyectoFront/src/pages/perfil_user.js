@@ -32,9 +32,10 @@ export function PerfilUserPage({ route, navigation }) {
   const dto = new UserDto("", "Alberto", "Lopez", "", "tuNegritoRompeCulitos@gmail.com", "tuJefa", userImageURI);
 
   return (
-    <SafeAreaProvider style={styles.container}>
+    <SafeAreaProvider >
       <Header
         centerComponent={{ text: 'PERFIL', style: { color: '#fff' } }} />
+      <View style={styles.container}>
       <LinearGradient
         // Button Linear Gradient
         colors={['#A3F4D8', '#70F0C4', '#0CCE8B', '#37F497']}
@@ -45,10 +46,8 @@ export function PerfilUserPage({ route, navigation }) {
           source={{ uri: imageURI }}
         />
       </LinearGradient>
-      <View style={styles.containerDtos}>
         <View style={styles.containerRow}>
           {/* Comienza formulario  */}
-
           <Formik
             validationSchema={perfilValidationScheme}
             initialValues={{ firstName: dto.nombre, lastName: dto.apellido }}
@@ -60,7 +59,11 @@ export function PerfilUserPage({ route, navigation }) {
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, isValid, touched }) => (
               <>
-                <View style={styles.containerColumn, styles.txtDtos} >
+                <View >
+                  <Text style={ [styles.txtDtos, {marginBottom:20}]}>
+                      Correo:{'\n'}
+                      {dto.correo}
+                  </Text>
                   <Input
                     leftIcon={
                       <Icon
@@ -83,7 +86,7 @@ export function PerfilUserPage({ route, navigation }) {
                   <Input
                     leftIcon={
                       <Icon
-                        name='unlock'
+                        name='user'
                         size={24}
                         color='black'
                       />
@@ -91,7 +94,7 @@ export function PerfilUserPage({ route, navigation }) {
 
                     name="lastName"
                     placeholder="Password"
-                    style={styles.txtDtos}
+                    style={{textAlign:'center',fontSize:15}}
                     onChangeText={handleChange('lastName')}
                     onBlur={handleBlur('lastName')}
                     value={values.lastName}
@@ -99,25 +102,31 @@ export function PerfilUserPage({ route, navigation }) {
                   {(errors.lastName && touched.lastName) &&
                     <Text style={{ fontSize: 10, color: 'red' }}>{errors.lastName}</Text>
                   }
-                  <LinearGradient
-                    colors={['#21d8b2', '#24ceb5', '#25eab4']}
-                    start={{ x: 0.0, y: 1.0 }} end={{ x: 1.0, y: 0.0 }}
-                    style={styles.containerButtonCreate}>
-                    <TouchableOpacity onPress={handleSubmit} >
-                      <Text>
-                        Actualizar
-                      </Text>
-                    </TouchableOpacity>
-                  </LinearGradient>
-                  <View style={styles.containerRow}>
-                    <Text style={styles.containerColumn, styles.txtDtos}>
-                      Correo:{'\n'}
-                      {dto.correo}
-                    </Text>
-                  </View>
-                  <Button
-                    title="Holiwis"
-                  />
+                  
+                <Button containerStyle={styles.button}
+                  title="Actualizar"
+                  type="outline"
+                  theme={{colors: {primary: '#32cd32'}}}
+                  onPress={()=>{
+                    handleSubmit  
+                  }}
+                />
+                <Button containerStyle={styles.button}
+                  title="Cerrar Sesión"
+                  type="outline"
+                  theme={{colors: {primary: 'grey'}}}
+                  onPress={()=>{
+                    handleSubmit  
+                  }}
+                />
+                <Button containerStyle={styles.button}
+                  title="Eliminar Cuenta"
+                  type="outline"
+                  theme={{colors: {primary: 'red'}}}
+                  onPress={()=>{
+                    handleSubmit  
+                  }}
+                />
                 </View>
 
               </>
@@ -126,7 +135,6 @@ export function PerfilUserPage({ route, navigation }) {
           </Formik>
           {/* Termina formulario */}
         </View>
-
       </View>
 
     </SafeAreaProvider>
@@ -137,45 +145,38 @@ export function PerfilUserPage({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    // alignItems: 'center',
-    // justifyContent: 'center',
+    width:'100%',
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
     flexDirection: 'column'
   },
   buttonImg: {
     borderRadius: 100,
     backgroundColor: "#ffffff",
-    width: 130, height: 130,
+    width: 90, height: 90,
     borderColor: "transparent"
   },
   containerImgUser: {
-    height: 150,
-    width: 150,
+    height: 110,
+    width: 110,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 100,
     elevation: 15,
     marginVertical: 25
   },
-  containerDtos: {
-    flex: 1,
-    flexDirection: 'column',
-  },
   containerRow: {
     flex: 1,
-    flexDirection: 'row',
-    flexGrow: 1,
-  },
-  containerColumn: {
-    flex: 1,
-    flexDirection: 'column',
+    // flexDirection: 'row',
+    // flexGrow: 1,
   },
   txtDtos: {
-    fontSize: 20,
-    flex: 1,
+    fontSize: 15,
     fontWeight: 'bold',
-    // flexGrow: 1,
-    flexShrink: 1,
-    marginHorizontal: 15
+    textAlign:'center'
+  },
+  button:{
+    marginVertical:2
   }
 });

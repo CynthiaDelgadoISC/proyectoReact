@@ -55,6 +55,20 @@ export class ReportPage extends React.Component{
    this.setValue = this.setValue.bind(this);
    //this.createAndSavePDF(this.htmlContent);
    
+   try{
+    console.log("MONTADO");
+    this.socket = io("http://192.168.0.9:3001",{jsonp: false});
+    
+  this.socket.onAny((val) => {
+    console.log(val)
+  });
+  this.socket.on('aeaf9e64-6569-46ad-85a3-cb8cd8631578', (msg) => {
+         //this.setState({ data :  msg });}
+         console.log('msg',msg);
+  });
+  }catch(e){
+    console.log(e);
+  }
   }
 
   getInitialData = () => {
@@ -96,6 +110,7 @@ export class ReportPage extends React.Component{
       itemsAux.push({label: data[item]._titulo, value: data[item]._id});
     }
     this.setState({items : itemsAux});
+
     this.getInitialData();
   });
 }
@@ -148,16 +163,7 @@ export class ReportPage extends React.Component{
     }
   };
   componentDidMount() {
-    try{
-      console.log("MONTADO");
-      this.socket = io("http://192.168.0.245:3000",{jsonp: false});
-      
-    this.socket.on("chartData", (msg) => {
-           this.setState({ data :  msg });
-    });
-    }catch(e){
-      console.log(e);
-    }
+
 
  }
 

@@ -6,6 +6,8 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import {Alert} from 'react-native-alert-dialogues';
+import Global from '../configuration/global';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 const addValidationSchema = yup.object().shape({
   description: yup
@@ -49,17 +51,38 @@ const DATA = [
   },
 ];
 
+let initValues = {
+  description: '',
+  rating: 0,
+  titleContenido: '',
+};
+
 export function AddReviewPage({route, navigation}) {
   useEffect(() => {
     console.log('Entraaaaaaaaaaa', route.params)
-    // itemId=route.params.id;
-    // if (itemId!=undefined){
-    //   console.log('perfectooooo')
-    // }
+    if (route.params!=''){
+      fetch(`${Global.serverURL}/api/resenas/ById?id=${route.params.viewId}`, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+        },
+      })
+      .then((res)=> res.json())
+      .then((data) => {
+        console.log('info ', data)
+        initValues = {
+          description: data[0]._descripcion,
+          rating: data[0]._calificacion,
+          titleContenido: '',
+        };
+      });
+    }
   }, []);
 
   const { viewId } = route.params;
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalFormVisible, setModalFormVisible] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [titleContenido, setTitleContenido] = useState('');
   const [rating, setRating] = useState(0);
@@ -73,6 +96,29 @@ export function AddReviewPage({route, navigation}) {
     });
     setData(filteredData);
   };
+
+  
+  const formModal = () =>{
+    return(
+      <Modal 
+      animationType="slide"
+      transparent={true}
+      visible={modalFormVisible}
+      onRequestClose={() => {
+        setModalFormVisible(!modalFormVisible);
+      }}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView} >
+          <Text> Formulario Modal </Text>
+
+          {/*AQUIIIIIIIIIII*/}
+
+        </View>
+      </View>
+      </Modal>
+    );
+  }
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.item}
@@ -99,8 +145,9 @@ export function AddReviewPage({route, navigation}) {
         <Text>{viewId} </Text>
         <ScrollView style={{flex:1, width:'100%'}}>
         <Formik
+
             validationSchema={addValidationSchema}
-            initialValues={{ description: ''}}
+            initialValues={initValues}
             onSubmit={async values => {
               const response = await saveReview({
                 description: values.description,
@@ -139,7 +186,7 @@ export function AddReviewPage({route, navigation}) {
           <AirbnbRating
             count={5}
             reviews={["¡Muy Malo!", "¡Malo!", "¡Regular!", "¡Bueno!", "¡Muy Bueno!"]}
-            defaultRating={1}
+            defaultRating={initValues.rating}
             size={30}
             reviewSize={15}
             onFinishRating={(number) => {setRating(number)}}
@@ -149,7 +196,9 @@ export function AddReviewPage({route, navigation}) {
                   title="Guardar"
                   type="outline"
                   theme={{colors: {primary: '#32cd32'}}}
-                  onPress={handleSubmit}
+                  onPress={()=>{
+                    handleSubmit  
+                  }}
               />
           </View>
           </>
@@ -172,6 +221,7 @@ export function AddReviewPage({route, navigation}) {
         /> 
         
       {/* Modal Contenido */}
+      {formModal()}
       <Modal 
         animationType="slide"
         transparent={true}
@@ -183,6 +233,12 @@ export function AddReviewPage({route, navigation}) {
         <View style={styles.centeredView}>
           <View style={styles.modalView} >
             <Text> CONTENIDO </Text>
+            <Icon.Button name={'form'} color={'gray'} backgroundColor="transparent"  size={32} style={{paddingVertical:10, paddingHorizontal:5}} 
+              onPress={() => {
+                setModalVisible(false);
+                setModalFormVisible(true)
+              }}
+            />
             <View style={{width:'100%'}}>
               <SearchBar style={styles.searchStyle}
                 placeholder="Buscar"
@@ -223,6 +279,7 @@ export function AddReviewPage({route, navigation}) {
       }, 5000);
     })
   }
+
   
   const styles = StyleSheet.create({
     container: {

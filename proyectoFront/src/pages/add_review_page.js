@@ -112,7 +112,10 @@ export function AddReviewPage({route, navigation}) {
         <View style={styles.modalView} >
           <Text> Formulario Modal </Text>
 
-          {/*AQUIIIIIIIIIII*/}
+          <Button />
+{/* un multi select para categoria valore (libro, pelicula, serie y anime)
+para subir imagen
+titulo (campo de texto)*/}
 
         </View>
       </View>

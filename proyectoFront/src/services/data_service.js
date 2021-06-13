@@ -14,7 +14,21 @@ export default class DataService{
         };
     }
 
+    async put(method, model) {
+        const response = await fetch(`${Global.serverURL}${method}`, {
+            method: 'PUT',
+            headers: this.headers,
+            body: model.encode()
+        });
+        const body = await response.json();
+        if(body != null)
+            return model.decode(body);
+        else
+            return null;
+    }
+
     async post(method, model) {
+        console.log("Service")
         const response = await fetch(`${Global.serverURL}${method}`, {
             method: 'POST',
             headers: this.headers,

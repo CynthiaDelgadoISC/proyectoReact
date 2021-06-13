@@ -53,7 +53,7 @@ export class ReportPage extends React.Component{
    };
    this.getContenidos();
    this.setValue = this.setValue.bind(this);
-   //this.createAndSavePDF(this.htmlContent);
+   this.createAndSavePDF(this.htmlContent);
    
    try{
     console.log("MONTADO");
@@ -141,20 +141,26 @@ export class ReportPage extends React.Component{
         await Sharing.shareAsync(uri);
       } else {
         const permission = await MediaLibrary.requestPermissionsAsync();
+        console.log(permission)
         if (permission.granted) {
-          let asset = await MediaLibrary.createAssetAsync(uri);
-          if(asset != null){
-            ToastAndroid.showWithGravity(
-              "Reporte guardado",
-              ToastAndroid.SHORT,
-              ToastAndroid.CENTER
-            );
-          }else{
-            ToastAndroid.showWithGravity(
-              "Error",
-              ToastAndroid.SHORT,
-              ToastAndroid.CENTER
-            );
+          try{
+            let asset = await MediaLibrary.createAssetAsync(uri);
+
+            if(asset != null){
+              ToastAndroid.showWithGravity(
+                "Reporte guardado",
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER
+              );
+            }else{
+              ToastAndroid.showWithGravity(
+                "Error",
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER
+              );
+            }
+          }catch(e){
+              console.log(e)
           }
         }
       }

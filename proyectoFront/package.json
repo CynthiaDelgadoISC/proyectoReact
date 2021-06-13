@@ -14,6 +14,7 @@
     "@react-navigation/stack": "^5.14.5",
     "expo": "~41.0.1",
     "expo-file-system": "~11.0.2",
+    "expo-image-picker": "~10.1.4",
     "expo-linear-gradient": "~9.1.0",
     "expo-media-library": "~12.0.2",
     "expo-print": "~10.1.0",
@@ -35,10 +36,10 @@
     "react-native-svg": "12.1.0",
     "react-native-vector-icons": "^8.1.0",
     "react-native-web": "~0.13.12",
+    "react-navigation": "^4.4.4",
     "socket.io-client": "^4.1.2",
     "victory-native": "^35.3.3",
-    "yup": "^0.32.9",
-    "expo-image-picker": "~10.1.4"
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"

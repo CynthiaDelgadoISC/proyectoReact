@@ -29,7 +29,7 @@ export default class ContentDto extends ModelDto {
     }
 
     encode(){
-        json = {
+       let json = {
             '_titulo':      this.titulo,
             '_url':         this.url,
             '_categoria':   this.categoria,  

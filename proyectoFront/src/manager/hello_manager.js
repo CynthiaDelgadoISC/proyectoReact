@@ -18,4 +18,19 @@ export class HelloManager{
         return newDto;
     }
 
+    async saveContent(dto){
+        let newDto = await (new HelloService()).saveContent(dto);
+        return newDto;
+    }
+
+    async saveReview(dto){
+        console.log("holaaaaaa");
+        let newDto = await (new HelloService()).saveReview(dto);
+        return newDto;
+    }
+
+    async editUser(dto){
+        let newDto = await (new HelloService()).editUser(dto);
+        return newDto;
+    }
 }

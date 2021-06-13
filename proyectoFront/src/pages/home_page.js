@@ -5,13 +5,18 @@ import { Rating, AirbnbRating } from 'react-native-ratings';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SearchBar, Header, withTheme } from 'react-native-elements';
 import Global from '../configuration/global';
-
-export function HomePage(){
+import { useIsFocused } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+export function HomePage({route}){
 
   const [search , setSearch] = useState('');
   const [filtData , setData] = useState(DATA);
   const [DATA , setRegData] = useState(DATA);
-  
+  const isFocused = useIsFocused();
+
+  const navigation = useNavigation();
+
+
   useEffect( () => {
     fetch(`${Global.serverURL}/api/resenas`, {
       method: 'GET',
@@ -25,9 +30,19 @@ export function HomePage(){
       setData(data);
       setRegData(data);
     });
-  },[])
+  },[isFocused])
 
-  
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log("im¨ressooo", Global.user);
+      if(Global.user.idUsuario == ''){
+        console.log("ENOTRROOO");
+        route.params.switchNav.goBack();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
     
   const updateSearch = (search) => {

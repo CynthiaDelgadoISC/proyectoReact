@@ -9,6 +9,10 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 const userImageURI = Image.resolveAssetSource(userImage).uri
 import { LinearGradient } from 'expo-linear-gradient'
+import Global from '../configuration/global';
+import { HelloManager } from '../manager/hello_manager';
+import { StackActions } from '@react-navigation/native';
+import { withNavigation } from 'react-navigation';
 
 const perfilValidationScheme = yup.object().shape({
   firstName: yup
@@ -29,7 +33,7 @@ export function PerfilUserPage({ route, navigation }) {
   const [firstName, setFirstName] = useState(userImageURI);
   const [lastName, setLastName] = useState(userImageURI);
 
-  const dto = new UserDto("", "Alberto", "Lopez", "", "tuNegritoRompeCulitos@gmail.com", "tuJefa", userImageURI);
+  const dto = Global.user;
 
   return (
     <SafeAreaProvider >
@@ -54,6 +58,12 @@ export function PerfilUserPage({ route, navigation }) {
             onSubmit={
               async (values) => {
                 console.log(values)
+                dto.nombre = values.firstName;
+                dto.apellido = values.lastName;
+
+                let newUser = await new HelloManager().editUser(dto);
+                console.log('newUser', newUser);
+                Global.user = dto;
               }
             }
           >
@@ -107,24 +117,32 @@ export function PerfilUserPage({ route, navigation }) {
                   title="Actualizar"
                   type="outline"
                   theme={{colors: {primary: '#32cd32'}}}
-                  onPress={()=>{
-                    handleSubmit  
-                  }}
+                  onPress={handleSubmit}
                 />
                 <Button containerStyle={styles.button}
                   title="Cerrar Sesión"
                   type="outline"
                   theme={{colors: {primary: 'grey'}}}
                   onPress={()=>{
-                    handleSubmit  
+                    Global.user = new UserDto();
+                    navigation.navigate('Home');
                   }}
                 />
                 <Button containerStyle={styles.button}
                   title="Eliminar Cuenta"
                   type="outline"
                   theme={{colors: {primary: 'red'}}}
-                  onPress={()=>{
-                    handleSubmit  
+                  onPress={async ()=>{
+                    const response = await fetch(`${Global.serverURL}/api/users/ById`, {
+                        method: 'DELETE',
+                        headers: {
+                          'Content-type': 'application/json',
+                          'Accept': 'application/json',
+                        },
+                        body: dto.encode()
+                    });
+                    Global.user = new UserDto();
+                    navigation.navigate('Home');
                   }}
                 />
                 </View>

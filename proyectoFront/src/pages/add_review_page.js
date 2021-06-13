@@ -11,7 +11,11 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'expo-image-picker';
 import imageSelect from './../../assets/selecImage.png'
-const imageSelectUri = Image.resolveAssetSource(imageSelect).uri
+const imageSelectUri = Image.resolveAssetSource(imageSelect).uri;
+import ContentDto from '../models/content_model';
+import UserDto from '../models/usuario_model';
+import ReviewDto from '../models/reseña_model';
+import { HelloManager } from '../manager/hello_manager';
 
 const addValidationSchema = yup.object().shape({
   description: yup
@@ -28,49 +32,39 @@ const categoriaValidationScheme = yup.object().shape({
     .required('El titulo es requerido'),
 })
 
-const DATA = [
-  {
-    id: "r1",
-    title: "Cazadores de sombras",
-    categoria: 'pelicula',
-  },
-  {
-    id: "r2",
-    title: "Second Item",
-    categoria: 'pelicula',
-  },
-  {
-    id: "r3",
-    title: "Third Item",
-    categoria: 'pelicula',
-  },
-  {
-    id: "r4",
-    title: "Third Item",
-    categoria: 'pelicula',
-  },
-  {
-    id: "r5",
-    title: "Third Item",
-    categoria: 'pelicula',
-  },
-  {
-    id: "r6",
-    title: "Third Item",
-    categoria: 'pelicula',
-  },
-];
 
-let initValues = {
-  description: '',
-  rating: 0,
-  titleContenido: '',
-};
 
 export function AddReviewPage({ route, navigation }) {
+  
+  const [initValues, setInitData] = useState({
+    description: '',
+    rating: 0,
+    titleContenido: '',
+  });
+  const [idContenido, setIdContenido] = useState('');
+
+
+  const getinitialData = async () => {
+    console.log("entrando aqui");
+    rawData = await fetch(`${Global.serverURL}/api/resenas/ById?id=${route.params.viewId}`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+    let data = await rawData.json();
+    let formattedData = {
+      description: data[0]._descripcion,
+      titleContenido: data[0]._contenido[0]._titulo,
+    };
+    console.log('formattedData',formattedData);
+    return formattedData;
+  }
+
   useEffect(() => {
-    console.log('Entraaaaaaaaaaa', route.params)
     if (route.params != '') {
+      
       fetch(`${Global.serverURL}/api/resenas/ById?id=${route.params.viewId}`, {
         method: 'GET',
         headers: {
@@ -79,14 +73,18 @@ export function AddReviewPage({ route, navigation }) {
         },
       })
         .then((res) => res.json())
-        .then((data) => {
-          console.log('info ', data)
-          initValues = {
+        .then(async (data) => {
+          setIdContenido( data[0]._contenido[0]._id)
+          let initValuesAux = {
             description: data[0]._descripcion,
             rating: data[0]._calificacion,
-            titleContenido: '',
+            titleContenido: data[0]._contenido[0]._titulo,
           };
+          await setInitData(initValuesAux);
+          
+          
         });
+        getContenidos();
     }
   }, []);
 
@@ -98,13 +96,14 @@ export function AddReviewPage({ route, navigation }) {
   const [rating, setRating] = useState(0);
   const [search, setSearch] = useState('');
   const [filtData, setData] = useState(DATA);
+  const [DATA, setInData] = useState(DATA);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [items, setItems] = useState([
-    { label: 'Libro', value: 'libro' },
-    { label: 'Película', value: 'pelicula' },
-    { label: 'Serie', value: 'serie' },
-    { label: 'Anime', value: 'anime' }
+    { label: 'Libro', value: 'Libro' },
+    { label: 'Película', value: 'Pelicula' },
+    { label: 'Serie', value: 'Serie' },
+    { label: 'Anime', value: 'Anime' }
   ]);
   const [image, setImage] = useState({
     image: null,
@@ -119,10 +118,32 @@ export function AddReviewPage({ route, navigation }) {
     });
     setData(filteredData);
   };
+  
+
+  const getContenidos = () => {
+  try{
+    fetch(`${Global.serverURL}/api/contenidos`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      },
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      setInData(data);
+      setData(data);
+    });
+  }catch(e){
+    console.log(e);
+  }
+  }
+  
 
   const formModal = () => {
-
+   
     return (
+      // Modal Form
       <Modal
         animationType="slide"
         transparent={true}
@@ -133,30 +154,23 @@ export function AddReviewPage({ route, navigation }) {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView} >
-            <Text> Formulario Modal </Text>
-
-            {/* un multi select para categoria valore (libro, pelicula, serie y anime)
-              para subir imagen
-              titulo (campo de texto)*/}
+            <Text style={{marginVertical:20}}> Formulario Modal </Text>
             <Formik
               validationSchema={categoriaValidationScheme}
               initialValues={{ titulo: '' }}
               onSubmit={
                 async (values) => {
-                  // console.log(values, value, image);
                   const x = await saveCategoria({titulo: values.titulo, nombre: value, image: image});
-                  console.log(x);
+                  setModalFormVisible(false);
                 }
               }
             >
               {({ handleChange, handleBlur, handleSubmit, values, errors, isValid, touched }) => (
                 <>
-                  <View style={styles.containerColumn, styles.txtDtos} >
                     <TouchableOpacity
                       style={styles.buttonContainerImg}
                       onPress={() => {
                         pick();
-
                       }}
                     >
                       <Image
@@ -185,14 +199,71 @@ export function AddReviewPage({ route, navigation }) {
                       style={{ marginVertical: 15 }}
                     />
 
-                    <Button title='Guardar' onPress={handleSubmit} />
-                  </View>
+                    <Button type="submit" title='Guardar' onPress={handleSubmit}/>
+
 
                 </>
               )}
 
             </Formik>
+                    <Pressable
+                      style={[styles.buttonClose,{marginVertical:30}]}
+                      onPress={() => setModalFormVisible(!modalFormVisible)}
+                    >
+                      <Text style={styles.textStyle}>Cerrar</Text>
+                    </Pressable>
           </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  const contentModal = () => {
+    
+    return(
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        
+        <View style={styles.centeredView}>
+          <View style={styles.modalView} >
+            <Text> CONTENIDO </Text>
+            <Icon.Button name={'pluscircleo'} color={'gray'} backgroundColor="transparent" size={32} style={{ paddingVertical: 10, paddingHorizontal: 5 }}
+              onPress={() => {
+                setModalVisible(false);
+                setModalFormVisible(true)
+              }}
+            />
+            <View style={{ width: '100%' }}>
+              <SearchBar style={styles.searchStyle}
+                placeholder="Buscar"
+                onChangeText={updateSearch}
+                value={search}
+                inputStyle={styles.inputStyle}
+                containerStyle={styles.searchContainerStyle}
+                placeholder={'Buscar'}
+                inputContainerStyle={styles.inputContainerStyle}
+              />
+            </View>
+            <FlatList style={styles.flatList}
+              data={filtData}
+              renderItem={renderItem}
+              keyExtractor={item => item._id}
+            />
+
+            <Pressable
+              style={styles.buttonClose}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Text style={styles.textStyle}>Cerrar</Text>
+            </Pressable>
+          </View>
+
         </View>
       </Modal>
     );
@@ -202,7 +273,6 @@ export function AddReviewPage({ route, navigation }) {
     // here is how you can get the camera permission
 
     const imagePermission = await ImagePicker.getMediaLibraryPermissionsAsync();
-    console.log(imagePermission.status);
 
     setGalleryPermission(imagePermission.status === 'granted');
 
@@ -216,24 +286,49 @@ export function AddReviewPage({ route, navigation }) {
       quality: 1,
 
     });
-    console.log(result.uri);
     if (!result.cancelled) {
       // setImageUri(result.uri);
       setImage({ image: result, imageURI: result.uri });
     }
   }
   const saveCategoria = async(values) => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        console.log('resolve', values);
-        resolve(true);
-      }, 2000);
-    })
+
+    let dto = new ContentDto(
+      values.titulo,
+      '',
+      values.nombre,
+      ''
+    );
+
+    dto = await new HelloManager().saveContent(dto);
+    
+    if(dto != null){
+      DATA.push({
+        '_categoria': dto.categoria,
+        '_id': dto.idContenido,
+        '_titulo': dto.titulo,
+        '_url': dto.url
+      });
+      setData(DATA);
+      setInData(DATA);
+      <Alert
+      visible={alertVisible}
+      type= "success"
+      okPressed={() =>{
+        setAlertVisible(false)
+        setModalVisible(false)
+      }
+      }
+      title= "Nuevo contenido creado"
+      message=''/> 
+      return dto;
+    }
   }
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.item}
       onPress={() => {
-        setTitleContenido(item.title)
+        setTitleContenido(item._titulo)
+        setIdContenido(item._id)
         setModalVisible(false)
       }}
     >
@@ -242,8 +337,8 @@ export function AddReviewPage({ route, navigation }) {
         source={{ uri: 'https://reactnative.dev/img/tiny_logo.png', }}
       />
       <View style={{ flex: 4 }}>
-        <Text style={styles.titleModal}>{item.title}</Text>
-        <Text style={styles.clasModal}>{item.categoria}</Text>
+        <Text style={styles.titleModal}>{item._titulo}</Text>
+        <Text style={styles.clasModal}>{item._categoria}</Text>
       </View>
 
     </TouchableOpacity>
@@ -252,20 +347,45 @@ export function AddReviewPage({ route, navigation }) {
     <SafeAreaProvider style={styles.container}>
       <Header
         centerComponent={{ text: 'NUEVA RESEÑA', style: { color: '#fff' } }} />
-      <Text>{viewId} </Text>
       <ScrollView style={{ flex: 1, width: '100%' }}>
         <Formik
-
           validationSchema={addValidationSchema}
-          initialValues={initValues}
+          initialValues={{description: initValues.description, titleContenido: initValues.titleContenido}}
+          enableReinitialize = {true}
           onSubmit={async values => {
-            const response = await saveReview({
-              description: values.description,
-              rating: rating,
-              titleContenido: titleContenido
-            });
-            if (response) {
-              setAlertVisible(true);
+            console.log(values);
+            if(route.params.viewId == ''){
+              const response = await saveReview({
+                description: values.description,
+                rating: rating,
+                idContenido: idContenido,
+              });
+              if (response) {
+                setAlertVisible(true);
+              }
+            }else{
+              let dto = new ReviewDto(
+                route.params.viewId,
+                new UserDto(),
+                new ContentDto(),
+                Global.user.idUsuario,
+                idContenido,
+                values.description,
+                '',
+                rating
+              );
+
+              const response = await fetch(`${Global.serverURL}/api/resenas/ById`, {
+                method: 'PUT',
+                headers: {
+                  'Content-type': 'application/json',
+                  'Accept': 'application/json',
+                },
+                body: dto.encode()
+              });
+              
+              navigation.goBack();
+
             }
           }}
         >
@@ -273,10 +393,17 @@ export function AddReviewPage({ route, navigation }) {
             <>
               <View style={styles.titleView}>
                 <View style={{ flex: 1 }}>
-                  <Input label={'Titulo'} disabled labelStyle={{ textAlign: 'center' }} value={titleContenido} />
+                  <Input 
+                   label={'Titulo'}
+                   name="titleContenido"
+                   disabled labelStyle={{ textAlign: 'center' }}
+                   value={route.params.viewId == ''?titleContenido :values.titleContenido}
+                   placeholder="Titulo"
+                  />
                 </View>
                 <Button style={{ flex: 1 }}
                   title="Seleccionar"
+                  disabled = {route.params.viewId == ''?false:true}
                   type="outline"
                   onPress={() => {
                     setModalVisible(true)
@@ -287,7 +414,7 @@ export function AddReviewPage({ route, navigation }) {
                 multiline={true}
                 numberOfLines={5}
                 label='Descipción'
-                name="firstName"
+                name = "description"
                 placeholder="Descipción"
                 onChangeText={handleChange('description')}
                 onBlur={handleBlur('description')}
@@ -306,9 +433,7 @@ export function AddReviewPage({ route, navigation }) {
                   title="Guardar"
                   type="outline"
                   theme={{ colors: { primary: '#32cd32' } }}
-                  onPress={() => {
-                    handleSubmit
-                  }}
+                  onPress={handleSubmit}
                 />
               </View>
             </>
@@ -332,61 +457,35 @@ export function AddReviewPage({ route, navigation }) {
 
       {/* Modal Contenido */}
       {formModal()}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView} >
-            <Text> CONTENIDO </Text>
-            <Icon.Button name={'form'} color={'gray'} backgroundColor="transparent" size={32} style={{ paddingVertical: 10, paddingHorizontal: 5 }}
-              onPress={() => {
-                setModalVisible(false);
-                setModalFormVisible(true)
-              }}
-            />
-            <View style={{ width: '100%' }}>
-              <SearchBar style={styles.searchStyle}
-                placeholder="Buscar"
-                onChangeText={updateSearch}
-                value={search}
-                inputStyle={styles.inputStyle}
-                containerStyle={styles.searchContainerStyle}
-                placeholder={'Buscar'}
-                inputContainerStyle={styles.inputContainerStyle}
-              />
-            </View>
-            <FlatList style={styles.flatList}
-              data={filtData}
-              renderItem={renderItem}
-              keyExtractor={item => item.id}
-            />
+      {contentModal()}
 
-            <Pressable
-              style={styles.buttonClose}
-              onPress={() => setModalVisible(!modalVisible)}
-            >
-              <Text style={styles.textStyle}>Cerrar</Text>
-            </Pressable>
-          </View>
-
-        </View>
-      </Modal>
     </SafeAreaProvider>
   );
 }
 
 const saveReview = async (values) => {
-  return new Promise(resolve => {
-    console.log("guardando rese;a", values);
+  console.log("FDFSD")
+  return new Promise(async resolve => {
+    
 
-    setTimeout(() => {
+    console.log("HOLAAAA ENTRAAA");
+    let dto = new ReviewDto(
+      '',
+      new UserDto(),
+      new ContentDto(),
+      Global.user.idUsuario,
+      values.idContenido,
+      values.description,
+      '',
+      values.rating
+    );
+    
+    console.log("Casi SALEEE",dto)
+    dto = await new HelloManager().saveReview(dto);
+    console.log("SALEEE",dto)
+    if(dto != null){
       resolve(true);
-    }, 5000);
+    }
   })
 }
 
@@ -415,7 +514,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-
   },
   modalView: {
     flexDirection: 'column',
@@ -462,25 +560,6 @@ const styles = StyleSheet.create({
   inputStyle: { backgroundColor: 'white' },
   searchContainerStyle: { backgroundColor: 'white', borderWidth: 1, borderRadius: 5, padding: 0 },
   inputContainerStyle: { backgroundColor: 'white' },
-  containerRow: {
-    flex: 1,
-    flexDirection: 'row',
-    flexGrow: 1,
-  },
-  containerColumn: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-    alignContent: 'center',
-    justifyContent: 'center'
-  },
-  txtDtos: {
-    fontSize: 20,
-    width: '80%',
-    flex: 1,
-    fontWeight: 'bold',
-    flexShrink: 1,
-  },
   containerImg: {
     height: 150,
     width: 150,

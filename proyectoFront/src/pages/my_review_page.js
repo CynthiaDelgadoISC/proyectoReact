@@ -9,6 +9,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack' ;
 import { AddReviewPage } from './add_review_page';
 import Global from '../configuration/global';
+import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import { UpdateReviewPage } from "./update_review";
+
 
 const Stack=createStackNavigator();
 
@@ -17,8 +21,24 @@ function modalContent({navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState({});
   const [DATA , setRegData] = useState(DATA);
-  let change = 0;
+  
+  const isFocused = useIsFocused();
 
+  useFocusEffect(() => {
+    fetch(`${Global.serverURL}/api/resenas/ByIdUsuario?id=${Global.user.idUsuario}`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      },
+    })
+    .then((res)=> res.json())
+    .then((data) => {
+      setRegData(data);
+    });
+  });
+  
+  
   useEffect( () => {
     fetch(`${Global.serverURL}/api/resenas/ByIdUsuario?id=${Global.user.idUsuario}`, {
       method: 'GET',
@@ -31,13 +51,15 @@ function modalContent({navigation}) {
     .then((data) => {
       setRegData(data);
     });
-  },[])
+    console.log("GGGGGG");
+  },[isFocused])
 
   const renderItem = ({ item }) => (
     
     <TouchableOpacity style={styles.item}
       onPress={() => {
         setSelectedReview(item)
+        console.log('iteeeem',item)
         setModalVisible(true)
       }}>
       <Image 
@@ -114,7 +136,6 @@ function modalContent({navigation}) {
             })
             .then((res)=> {})
             .then((data) => {
-              change++;
               setAlertVisible(true)
               let aux =DATA.filter( (item) => {
                 if(item._id != selectedReview._id){

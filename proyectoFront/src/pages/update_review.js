@@ -16,39 +16,6 @@ const addValidationSchema = yup.object().shape({
   //   .required('La calificación'),
 })
 
-const DATA = [
-  {
-    id: "r1",
-    title: "Cazadores de sombras",
-    categoria:'pelicula',
-  },
-  {
-    id: "r2",
-    title: "Second Item",
-    categoria:'pelicula',
-  },
-  {
-    id: "r3",
-    title: "Third Item",
-    categoria:'pelicula',
-  },
-  {
-    id: "r4",
-    title: "Third Item",
-    categoria:'pelicula',
-  },
-  {
-    id: "r5",
-    title: "Third Item",
-    categoria:'pelicula',
-  },
-  {
-    id: "r6",
-    title: "Third Item",
-    categoria:'pelicula',
-  },
-];
-
 export function UpdateReviewPage({route, navigation}) {
   useEffect(() => {
     console.log('Entraaaaaaaaaaa', route.params)

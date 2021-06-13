@@ -8,13 +8,15 @@ import { HomePage } from './home_page';
 import { ReportPage } from './report_page';
 import { PerfilUserPage } from './perfil_user';
 import { AddReviewPage } from './add_review_page';
+import { useNavigation } from '@react-navigation/native';
 
 import Icon from 'react-native-vector-icons/AntDesign';
+import { withNavigation } from 'react-navigation';
 
 const Tab = createBottomTabNavigator();
 
 const screenOptions = (route, color) => {
-    let iconName;
+  let iconName;
   
     switch (route.name) {
       case 'Home':
@@ -37,20 +39,21 @@ const screenOptions = (route, color) => {
     return <Icon name={iconName} color={color} size={24} />;
 };  
 
-const TabNavigator = () => {
-    return (
-      <Tab.Navigator initialRouteName='Home'
+const TabNavigator = (nav) => {
+  
+  return (
+    <Tab.Navigator initialRouteName='Home'
         screenOptions={({route}) => ({
           tabBarIcon: ({color}) => screenOptions(route, color),
         })}
         tabBarOptions={{
-            showLabel: false,
-            activeTintColor: '#21eab3',
-            inactiveTintColor: 'gray',
+          showLabel: false,
+          activeTintColor: '#21eab3',
+          inactiveTintColor: 'gray',
         }}>
         <Tab.Screen name="MyReview" component={MyReviewPage}/>
         <Tab.Screen name="AddReview" component={ AddReviewPage } initialParams={{ viewId: '' }}/>
-        <Tab.Screen name="Home" component={ HomePage } />
+        <Tab.Screen name="Home" component={ HomePage } initialParams = {{switchNav: nav}}/>
         <Tab.Screen name="Report" component={ ReportPage } />
         <Tab.Screen name="Perfil" component={ PerfilUserPage } />
 
@@ -58,10 +61,13 @@ const TabNavigator = () => {
     );
   };
 
+  
 export function SwitchPage() {
-    return (
+  const navigation = useNavigation();
+
+  return (
       <NavigationContainer independent={true}>
-          <TabNavigator />
+          {TabNavigator(navigation)}
         </NavigationContainer> 
     );
   }
@@ -75,3 +81,4 @@ export function SwitchPage() {
     },
   });
   
+  export default withNavigation(<PerfilUserPage/>);

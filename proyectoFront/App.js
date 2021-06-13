@@ -4,6 +4,11 @@ import {createStackNavigator} from '@react-navigation/stack' ;
 import { LoginPage } from './src/pages/login_page';
 import { SwitchPage } from './src/pages/switch_page';
 import { SubscribePage } from './src/pages/subscribe_page';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
 
 const Stack=createStackNavigator();
 

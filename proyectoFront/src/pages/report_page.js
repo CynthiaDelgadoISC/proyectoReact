@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, ToastAndroid } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ToastAndroid, Button } from 'react-native';
 import { VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
 import io from "socket.io-client";
 import * as MediaLibrary from 'expo-media-library';
@@ -11,34 +11,13 @@ import { Header } from 'react-native-elements';
 export class ReportPage extends React.Component{
 
 
-  htmlContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pdf Content</title>
-        <style>
-            body {
-                font-size: 16px;
-                color: rgb(255, 196, 0);
-            }
-            h1 {
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Hola profe!</h1>
-    </body>
-    </html>
-`;
+
 
   constructor(props){
     super(props);
     this.state = {
       data : [
-        { quarter: 1, earnings: 0 },
+        { quarter: 1, earnings: 0 }, 
         { quarter: 2, earnings: 0 },
         { quarter: 3, earnings: 0 },
         { quarter: 4, earnings: 0 },
@@ -49,30 +28,20 @@ export class ReportPage extends React.Component{
         {label: 'Banana', value: 'banana'}
       ],
       value: '',
-      open: false
+      open: false,
+      listeningValue : ''
    };
    this.getContenidos();
    this.setValue = this.setValue.bind(this);
-   this.createAndSavePDF(this.htmlContent);
    
-   try{
-    console.log("MONTADO");
-    this.socket = io("http://192.168.0.9:3001",{jsonp: false});
-    
-  this.socket.onAny((val) => {
-    console.log(val)
-  });
-  this.socket.on('aeaf9e64-6569-46ad-85a3-cb8cd8631578', (msg) => {
-         //this.setState({ data :  msg });}
-         console.log('msg',msg);
-  });
-  }catch(e){
-    console.log(e);
+
   }
+ 
+  componentDidMount(){   
+    this.socket = io("http://192.168.0.235:3000");
   }
 
   getInitialData = () => {
-    console.log('items',this.state.items);
     if(this.state.items.length > 0){
       fetch(`${Global.serverURL}/api/contenidos/calificaciones?id=${this.state.items[0].value}`, {
         method: 'GET',
@@ -83,6 +52,30 @@ export class ReportPage extends React.Component{
       })
       .then((res)=> res.json())
       .then((data) => {
+        let dataGraphicAux = [
+          { quarter: 1, earnings: data['1star'] },
+          { quarter: 2, earnings: data['2star'] },
+          { quarter: 3, earnings: data['3star'] },
+          { quarter: 4, earnings: data['4star'] },
+          { quarter: 5, earnings: data['5star'] }
+        ];
+        this.setState({data: dataGraphicAux});
+      });
+    }
+  }
+
+  getChartData = (id) => {
+    if(this.state.items.length > 0){
+      fetch(`${Global.serverURL}/api/contenidos/calificaciones?id=${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          'Accept': 'application/json',
+        },
+      })
+      .then((res)=> res.json())
+      .then((data) => {
+        console.log('data',data)
         let dataGraphicAux = [
           { quarter: 1, earnings: data['1star'] },
           { quarter: 2, earnings: data['2star'] },
@@ -106,9 +99,16 @@ export class ReportPage extends React.Component{
   .then((res)=> res.json())
   .then((data) => {
     let itemsAux = [];
-    for(let item in data){
+    for(let item in data)
       itemsAux.push({label: data[item]._titulo, value: data[item]._id});
-    }
+    
+    this.setState({listeningValue : itemsAux[0].value});
+
+    console.log('listening',this.state.listeningValue);
+    this.socket.on(this.state.listeningValue, (messages) => {
+        this.setState({data : messages});
+    });
+
     this.setState({items : itemsAux});
 
     this.getInitialData();
@@ -122,9 +122,24 @@ export class ReportPage extends React.Component{
   }
 
   setValue = (callback) => {
+
     this.setState(state => ({
       value: callback(state.value)
     }));
+
+    let v = this.state.value;
+    this.socket.off(this.state.listeningValue);
+
+    this.setState({listeningValue: v});
+
+    this.getChartData(this.state.listeningValue);
+
+    console.log('listening',callback(this.state.listeningValue));
+    this.socket.on(this.state.listeningValue, (messages) => {
+        this.setState({data : messages});
+    });
+
+  
   }
 
   setItems = (callback) => {
@@ -134,44 +149,83 @@ export class ReportPage extends React.Component{
   }
 
 
-  createAndSavePDF = async (html) => {
-    try {
-      const { uri } = await Print.printToFileAsync({ html });
-      if (Platform.OS === "ios") {
-        await Sharing.shareAsync(uri);
-      } else {
-        const permission = await MediaLibrary.requestPermissionsAsync();
-        console.log(permission)
-        if (permission.granted) {
-          try{
-            let asset = await MediaLibrary.createAssetAsync(uri);
+  createAndSavePDF = async () => {
 
-            if(asset != null){
-              ToastAndroid.showWithGravity(
-                "Reporte guardado",
-                ToastAndroid.SHORT,
-                ToastAndroid.CENTER
-              );
-            }else{
-              ToastAndroid.showWithGravity(
-                "Error",
-                ToastAndroid.SHORT,
-                ToastAndroid.CENTER
-              );
-            }
-          }catch(e){
-              console.log(e)
-          }
-        }
+
+    fetch(`${Global.serverURL}/api/resenas/ByIdUsuario?id=${Global.user.idUsuario}`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      },
+    })
+    .then((res)=> res.json())
+    .then(async (data) => {
+      console.log('resenas',data);
+      let aux = ``;
+      for(let i in data){
+        aux+=`<h4>${data[i]['_contenido'][0]._titulo}</h4>`;
+        aux+=`<p>${data[i]['_descripcion']}</p>`
+        aux+=`<p>Estrellas: ${data[i]['_calificacion']}</p>`
+        aux+='<hr>';
       }
-    } catch (error) {
-      console.error(error);
-    }
+      let html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Reporte de usuario</title>
+          <style>
+              body {
+                  font-size: 16px;
+                  color: rgb(115, 0, 0);
+              }
+              h1 {
+                  text-align: center;
+              }
+          </style>
+      </head>
+      <body>
+          <h1>Reporte de ${Global.user.nombre}</h1>
+          ${aux}
+      </body>
+      </html>
+  `;
+      
+      try {
+        const { uri } = await Print.printToFileAsync({ html });
+        if (Platform.OS === "ios") {
+          await Sharing.shareAsync(uri);
+        } else {
+          const permission = await MediaLibrary.requestPermissionsAsync();
+          if (permission.granted) {
+            try{
+              let asset = await MediaLibrary.createAssetAsync(uri);
+              
+              if(asset != null){
+                ToastAndroid.showWithGravity(
+                  "Reporte guardado",
+                  ToastAndroid.SHORT,
+                  ToastAndroid.CENTER
+                  );
+                }else{
+                  ToastAndroid.showWithGravity(
+                    "Error",
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                    );
+                  } 
+                }catch(e){
+                  console.log(e)
+                }
+              }
+            }
+          } catch (error) {
+            console.error(error);
+          }
+    });
   };
-  componentDidMount() {
-
-
- }
 
   render(){
     const styles = StyleSheet.create({
@@ -203,7 +257,15 @@ export class ReportPage extends React.Component{
           animate={{duration: 500}}>
           <VictoryBar data={this.state.data} x="quarter" y="earnings" />
         </VictoryChart>
-      
+
+        <Button onPress = {() => {  
+          this.createAndSavePDF();
+        }}
+        title="Generar Reporte"
+        />
+          
+        
+
       </View>
     );
     
